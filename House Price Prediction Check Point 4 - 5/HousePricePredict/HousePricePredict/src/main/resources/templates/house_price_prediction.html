@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>House Price Prediction</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+        background-color: #155724; /* Warna hijau tua */
+        color: #fff;
+        font-family: 'Arial', sans-serif;
+    }
+    .container {
+        background-color: #d4edda; /* Warna hijau muda */
+        border-radius: 10px;
+        padding: 50px 40px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        max-width: 700px;
+        margin-top: 50px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    h1 {
+        color: #000000; /* Warna hitam */
+        text-align: center;
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+    h1 i {
+        margin-right: 10px;
+        color: #28a745;
+    }
+    .form-label {
+        color: #333;
+    }
+    .form-control {
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 1rem;
+        height: 40px;
+    }
+    .form-control:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+    }
+    .btn-success {
+        background-color: #28a745;
+        border-color: #218838;
+        border-radius: 8px;
+        padding: 12px 0;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+        transform: scale(1.05);
+    }
+    .alert {
+        font-size: 1.1rem;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+    }
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    .form-group {
+        margin-bottom: 10px;
+    }
+    @media (max-width: 576px) {
+        .container {
+            padding: 60px 30px;
+            max-width: 100%;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+        h1 {
+            font-size: 1.8rem;
+        }
+        .form-group {
+            margin-bottom: 8px;
+        }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1><i class="fas fa-home"></i> House Price Prediction</h1>
+
+  <form id="house-price-form">
+    <div class="form-group">
+      <label for="LB" class="form-label">Luas Bangunan (m²)</label>
+      <input type="number" step="1" class="form-control" id="LB" name="LB" required>
+    </div>
+
+    <div class="form-group">
+      <label for="LT" class="form-label">Luas Tanah (m²)</label>
+      <input type="number" step="1" class="form-control" id="LT" name="LT" required>
+    </div>
+
+    <div class="form-group">
+      <label for="KT" class="form-label">Jumlah Kamar Tidur</label>
+      <input type="number" step="1" class="form-control" id="KT" name="KT" required>
+    </div>
+
+    <div class="form-group">
+      <label for="KM" class="form-label">Jumlah Kamar Mandi</label>
+      <input type="number" step="1" class="form-control" id="KM" name="KM" required>
+    </div>
+
+    <div class="form-group">
+      <label for="GRS" class="form-label">Jumlah Garasi</label>
+      <input type="number" step="1" class="form-control" id="GRS" name="GRS" required>
+    </div>
+
+    <button type="submit" class="btn btn-success w-100">Predict Price</button>
+  </form>
+
+  <div id="result"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+     $("#house-price-form").on("submit", function (event) {
+         event.preventDefault(); // Mencegah form dari pengiriman default
+
+         // Mengumpulkan data dari form
+         const data = {
+             LB: parseInt($("#LB").val()),
+             LT: parseInt($("#LT").val()),
+             KT: parseInt($("#KT").val()),
+             KM: parseInt($("#KM").val()),
+             GRS: parseInt($("#GRS").val())
+         };
+
+         // Log data yang akan dikirim
+         console.log("Data yang dikirim:", data);
+
+         // Mengirim permintaan ke API
+         $.ajax({
+             url: "/api/house-price/predict",
+             type: "POST",
+             contentType: "application/json",
+             data: JSON.stringify(data),
+             success: function (response) {
+                 // Menampilkan hasil prediksi
+                 if (response.prediction) {
+                     $("#result").html(`<div class="alert alert-success"> Predicted Price: Rp${response.prediction.toLocaleString()} </div>`);
+                 } else if (response.error) {
+                     $("#result").html(`<div class="alert alert-danger"> Error: ${response.error} </div>`);
+                 }
+             },
+             error: function (xhr, status, error) {
+                 $("#result").html(`<div class="alert alert-danger"> Terjadi kesalahan saat menghubungi server: ${error} </div>`);
+             }
+         });
+     });
+ });
+</script>
+
+</body>
+</html>
